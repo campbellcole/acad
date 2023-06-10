@@ -43,6 +43,7 @@ impl ArchiveIndex {
     }
 
     pub async fn refresh(&mut self, ctx: &AppContext<'_>) -> Result<()> {
+        info!("refreshing index");
         let mut new_playlists = Vec::new();
 
         for source in ctx.sources.iter() {
@@ -127,7 +128,7 @@ impl ArchiveIndex {
                 .into_iter()
                 .partition(|(_, res)| res.is_err());
 
-            trace!(
+            debug!(
                 "{}:\n\t{} deleted tracks\n\t{} removed tracks\n\t{} new tracks",
                 playlist.url,
                 deleted_tracks.len(),
@@ -167,6 +168,7 @@ impl ArchiveIndex {
 
                 let new_path = deleted_dir.join(path.file_name().unwrap());
 
+                trace!("moving {} to {}", path.display(), new_path.display());
                 fs::rename(path, new_path).await?;
 
                 playlist.deleted_tracks.push(deleted);
@@ -217,6 +219,7 @@ impl ArchiveIndex {
 
                 let new_path = removed_dir.join(path.file_name().unwrap());
 
+                trace!("moving {} to {}", path.display(), new_path.display());
                 fs::rename(path, new_path).await?;
 
                 playlist.removed_tracks.push(removed);

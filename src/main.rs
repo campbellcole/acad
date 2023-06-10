@@ -1,5 +1,8 @@
 #![feature(drain_filter)]
 
+use std::time::Duration;
+
+use chrono::Local;
 use color_eyre::{eyre::eyre, Result};
 use sources::Sources;
 use thirtyfour::{DesiredCapabilities, WebDriver};
@@ -53,11 +56,11 @@ async fn main() -> Result<()> {
         return Err(eyre!("No sources found"));
     }
 
+    let mut index = index::ArchiveIndex::load(&config).await?;
+
     let mut caps = DesiredCapabilities::firefox();
     caps.add_firefox_arg("--headless")?;
     let driver = WebDriver::new("http://localhost:4444", caps).await?;
-
-    let mut index = index::ArchiveIndex::load(&config).await?;
 
     let ctx = AppContext {
         driver: &driver,
@@ -65,7 +68,16 @@ async fn main() -> Result<()> {
         sources: &sources,
     };
 
-    index.refresh(&ctx).await?;
+    let interval = Duration::from_secs(60 * 60 * 12);
+    let chrono_duration = chrono::Duration::from_std(interval).unwrap();
+    loop {
+        if let Err(err) = index.refresh(&ctx).await {
+            error!("Error refreshing index: {:?}", err);
+            break;
+        }
+        info!("sleeping until {}", Local::now() + chrono_duration);
+        tokio::time::sleep(interval).await;
+    }
 
     driver.quit().await?;
 
