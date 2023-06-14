@@ -10,7 +10,11 @@ pub struct AcadConfig {
 impl AcadConfig {
     pub fn get() -> Result<Self, ConfigError> {
         Config::builder()
-            .add_source(config::Environment::default().prefix("SCD").separator("__"))
+            .add_source(
+                config::Environment::default()
+                    .prefix("ACAD")
+                    .separator("__"),
+            )
             .build()?
             .try_deserialize()
     }
