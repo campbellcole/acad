@@ -8,7 +8,6 @@ WORKDIR /usr/src/acad
 
 # create skeleton project
 RUN cargo init
-COPY .cargo ./.cargo
 
 # copy over dependencies
 COPY Cargo.toml Cargo.toml
@@ -24,7 +23,7 @@ COPY src ./src
 # build project
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     touch src/main.rs && \
-    cargo build --release --features logging
+    cargo build --release
 
 FROM ubuntu:latest
 
