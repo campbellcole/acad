@@ -27,6 +27,11 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 
 FROM ubuntu:latest
 
+# install ca-certificates
+RUN apt update && \
+    apt install ca-certificates wget -y && \
+    rm -rf /var/lib/apt/lists/*
+
 # install yt-dlp
 RUN wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp && \
     chmod a+rx /usr/local/bin/yt-dlp
