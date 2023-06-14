@@ -28,11 +28,9 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 
 FROM ubuntu:latest
 
-# install libatomic1 (required for snmalloc)
-# RUN apt update && apt install libatomic1 -y
-
-# clean up
-# RUN apt clean && rm -rf /var/lib/apt/lists/*
+# install yt-dlp
+RUN wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp && \
+    chmod a+rx /usr/local/bin/yt-dlp
 
 COPY --from=builder /usr/src/acad/target/release/acad /acad
 
