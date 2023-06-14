@@ -5,6 +5,8 @@ use config::{Config, ConfigError};
 #[derive(Debug, Deserialize)]
 pub struct AcadConfig {
     pub data_folder: PathBuf,
+    pub geckodriver_hostname: String,
+    pub geckodriver_port: u16,
 }
 
 impl AcadConfig {

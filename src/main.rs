@@ -60,7 +60,11 @@ async fn main() -> Result<()> {
 
     let mut caps = DesiredCapabilities::firefox();
     caps.add_firefox_arg("--headless")?;
-    let driver = WebDriver::new("http://localhost:4444", caps).await?;
+    let driver_url = format!(
+        "http://{}:{}",
+        config.geckodriver_hostname, config.geckodriver_port
+    );
+    let driver = WebDriver::new(&driver_url, caps).await?;
 
     let ctx = AppContext {
         driver: &driver,
