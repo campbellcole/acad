@@ -2,15 +2,39 @@ FROM rust:latest as builder
 
 WORKDIR /usr/src/acad
 
-RUN cargo new --bin acad
-COPY Cargo.toml Cargo.lock ./
+# install cmake (required for building snmalloc)
+# RUN apt update
+# RUN apt install cmake -y
 
-RUN cargo build --release
+# create skeleton project
+RUN cargo init
+COPY .cargo ./.cargo
 
-RUN rm src/*.rs && rm target/release/deps/acad*
+# copy over dependencies
+COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
 
-COPY ./src ./src
+# build dependencies
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    cargo build --release
 
-RUN cargo install --path .
+# copy over project
+COPY src ./src
 
-CMD ["acad"]
+# build project
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    touch src/main.rs && \
+    cargo build --release --features logging
+
+FROM ubuntu:latest
+
+# install libatomic1 (required for snmalloc)
+# RUN apt update && apt install libatomic1 -y
+
+# clean up
+# RUN apt clean && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/src/acad/target/release/acad /acad
+
+# and run it (environment vars must be set in docker-compose.yml)
+CMD ["/acad"]
