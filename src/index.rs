@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
+    time::Duration,
 };
 
 use chrono::{Local, NaiveDateTime};
@@ -58,6 +59,9 @@ impl ArchiveIndex {
                     deleted_tracks: Vec::new(),
                 });
             }
+
+            // if we don't do this we get rate limited
+            tokio::time::sleep(Duration::from_secs(3)).await;
         }
 
         trace!("{} new playlists", new_playlists.len());
@@ -115,6 +119,8 @@ impl ArchiveIndex {
             // get the status of the missing tracks
             let missing_tracks_and_status = missing_tracks.into_iter().map(|t| async {
                 let res = soundcloud::get_track_id(ctx, &t.url).await;
+                // more rate limiting
+                tokio::time::sleep(Duration::from_secs(3)).await;
                 (t, res)
             });
 
