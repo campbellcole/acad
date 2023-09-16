@@ -64,13 +64,14 @@ impl ArchiveIndex {
             tokio::time::sleep(Duration::from_secs(3)).await;
         }
 
-        trace!("{} new playlists", new_playlists.len());
+        debug!("{} new playlists", new_playlists.len());
 
         self.playlists.extend(new_playlists);
 
         for playlist in self.playlists.iter_mut() {
-            trace!("updating playlist: {}", playlist.url);
+            debug!("updating playlist: {}", playlist.url);
             let manifest = ytdl::fetch_manifests(&playlist.url).await?;
+            trace!("manifest contains {} tracks", manifest.len());
 
             let new_to_old = manifest
                 .into_iter()

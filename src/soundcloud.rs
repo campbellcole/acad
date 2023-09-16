@@ -11,7 +11,7 @@ where
 {
     let d = &ctx.driver;
 
-    trace!("navigating to page");
+    debug!("navigating to page");
     d.goto(url).await?;
 
     let scripts = d.find_all(By::Tag("script")).await?;

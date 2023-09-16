@@ -70,7 +70,7 @@ pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
 
 #[instrument]
 pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Result<()> {
-    trace!("downloading track: {}", track.url);
+    debug!("downloading track: {}", track.url);
 
     let mut cmd = Command::new("yt-dlp");
 
