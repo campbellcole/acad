@@ -27,9 +27,9 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 
 FROM ubuntu:latest
 
-# install ca-certificates
+# install ca-certificates & python (required for yt-dlp)
 RUN apt update && \
-    apt install ca-certificates wget -y && \
+    apt install --no-install-recommends -y ca-certificates wget python3.9 && \
     rm -rf /var/lib/apt/lists/*
 
 # install yt-dlp
