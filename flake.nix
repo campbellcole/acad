@@ -27,9 +27,7 @@
           ];
 
           buildInputs = [
-            (rust-bin.nightly."2023-06-01".default.override {
-              extensions = [ "rust-src" ];
-            })
+            (rust-bin.fromRustupToolchainFile ./rust-toolchain.toml)
           ];
 
           LD_LIBRARY_PATH = lib.makeLibraryPath buildInputs;

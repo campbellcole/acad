@@ -1,5 +1,3 @@
-#![feature(drain_filter)]
-
 use std::time::Duration;
 
 use chrono::Local;
