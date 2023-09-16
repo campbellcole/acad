@@ -77,7 +77,7 @@ pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
 pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Result<()> {
     let path = dest
         .as_ref()
-        .join(format!("{:04}_%(title)s.%(ext)s", track.idx));
+        .join(format!("{:04}_{}.mp3", track.idx, track.track));
 
     if path.exists() {
         debug!("skipping track because we already have it: {}", track.url);
