@@ -117,7 +117,7 @@ pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Re
         title_slug = track.id.clone();
     }
 
-    let filename = format!("{}_{}.mp3", track.idx, title_slug);
+    let filename = format!("{:04}_{}.mp3", track.idx, title_slug);
     let path = dest.as_ref().join(filename);
 
     if path.exists() {
