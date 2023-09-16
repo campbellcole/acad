@@ -29,7 +29,7 @@ FROM ubuntu:latest
 
 # install ca-certificates & python (required for yt-dlp)
 RUN apt update && \
-    apt install --no-install-recommends -y ca-certificates wget python3 && \
+    apt install --no-install-recommends -y ca-certificates wget python3 ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
 # install yt-dlp

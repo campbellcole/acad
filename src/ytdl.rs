@@ -60,8 +60,6 @@ pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
 
     let stdout = String::from_utf8(output.stdout)?;
 
-    trace!("yt-dlp output: {}", stdout);
-
     let mut tracks = Vec::new();
 
     for (idx, line) in stdout.lines().enumerate() {
