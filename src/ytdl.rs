@@ -1,6 +1,7 @@
 use std::{fmt::Debug, path::Path, process::Stdio};
 
 use color_eyre::{eyre::eyre, Result};
+use slugify::slugify;
 use tokio::process::Command;
 
 use crate::index::Track;
@@ -110,9 +111,14 @@ pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
 
 #[instrument]
 pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Result<()> {
-    let path = dest
-        .as_ref()
-        .join(format!("{:04}_{}.mp3", track.idx, track.track));
+    let mut title_slug = slugify!(&track.track, max_length = 32);
+
+    if title_slug.is_empty() {
+        title_slug = track.id.clone();
+    }
+
+    let filename = format!("{}_{}.mp3", track.idx, title_slug);
+    let path = dest.as_ref().join(filename);
 
     if path.exists() {
         debug!("skipping track because we already have it: {}", track.url);
@@ -130,6 +136,7 @@ pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Re
         .arg("0")
         .arg("-o")
         .arg(path)
+        .arg("--add-metadata")
         .arg(&track.url);
 
     cmd.stderr(Stdio::piped());
