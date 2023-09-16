@@ -75,7 +75,9 @@ pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
 
 #[instrument]
 pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Result<()> {
-    let path = dest.as_ref().join(format!("{:04}.mp3", track.idx));
+    let path = dest
+        .as_ref()
+        .join(format!("{:04}_%(title)s.%(ext)s", track.idx));
 
     if path.exists() {
         debug!("skipping track because we already have it: {}", track.url);
@@ -92,10 +94,7 @@ pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Re
         .arg("--audio-quality")
         .arg("0")
         .arg("-o")
-        .arg(
-            dest.as_ref()
-                .join(format!("{:04}_%(title)s.%(ext)s", track.idx)),
-        )
+        .arg(path)
         .arg(&track.url);
 
     cmd.stderr(Stdio::piped());
