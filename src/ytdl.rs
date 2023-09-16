@@ -75,6 +75,13 @@ pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
 
 #[instrument]
 pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Result<()> {
+    let path = dest.as_ref().join(format!("{:04}.mp3", track.idx));
+
+    if path.exists() {
+        debug!("skipping track because we already have it: {}", track.url);
+        return Ok(());
+    }
+
     debug!("downloading track: {}", track.url);
 
     let mut cmd = Command::new("yt-dlp");
