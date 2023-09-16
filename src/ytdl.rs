@@ -42,7 +42,10 @@ impl OrderedTrackManifest {
     }
 }
 
+#[instrument]
 pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
+    debug!("fetching manifests");
+
     let mut cmd = Command::new("yt-dlp");
 
     cmd.arg("-j").arg(url);
@@ -53,12 +56,42 @@ pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
 
     let output = child.wait_with_output().await?;
 
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(eyre!("yt-dlp failed: {:?}", stderr));
-    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
 
-    let stdout = String::from_utf8(output.stdout)?;
+    if !output.status.success() {
+        // yt-dlp will exit with code 1 if fetching the manifest failed
+        // for any single track, even though it will continue to fetch
+        // the rest of the tracks. so we can't just return an error here.
+        // we have to ensure all lines of stderr are just proxy warnings.
+        let stderr = String::from_utf8_lossy(&output.stderr);
+
+        let lines = stderr.lines().collect::<Vec<_>>();
+
+        // check each error and if we find one that is not a proxy warning, throw an error
+        if !lines.chunks(2).all(|chunk| {
+            if chunk.len() != 2 {
+                // the error message we are looking for is always
+                // 2 lines, so if we don't have 2 lines, we know
+                // another error happened
+                return false;
+            }
+
+            chunk[0]
+                .contains("This video is not available from your location due to geo restriction")
+                && chunk[1].contains("You might want to use a VPN or a proxy server")
+        }) {
+            return Err(eyre!(
+                "yt-dlp failed: (stderr: {:?}) (stdout: {:?})",
+                stderr,
+                stdout
+            ));
+        }
+
+        warn!(
+            "{} songs were not available due to geo restrictions! they will be ignored.",
+            lines.len() / 2
+        );
+    }
 
     let mut tracks = Vec::new();
 
@@ -69,6 +102,8 @@ pub async fn fetch_manifests(url: &str) -> Result<Vec<OrderedTrackManifest>> {
             manifest: track,
         });
     }
+
+    trace!("fetched {} manifests", tracks.len());
 
     Ok(tracks)
 }
