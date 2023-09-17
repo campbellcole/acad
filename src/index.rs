@@ -167,10 +167,7 @@ impl ArchiveIndex {
 
                 // move the track to the removed folder
                 let Some(path) = deleted.find_downloaded(&playlist_dir) else {
-                    return Err(eyre!(
-                        "could not find downloaded track: {:?}",
-                        track
-                    ));
+                    return Err(eyre!("could not find downloaded track: {:?}", track));
                 };
 
                 let new_path = deleted_dir.join(path.file_name().unwrap());
@@ -183,10 +180,7 @@ impl ArchiveIndex {
                 // update the indices of the tracks after the deleted track
                 for t in playlist.tracks[idx..].iter_mut() {
                     let Some(path) = t.find_downloaded(&playlist_dir) else {
-                        return Err(eyre!(
-                            "could not find downloaded track: {:?}",
-                            track
-                        ));
+                        return Err(eyre!("could not find downloaded track: {:?}", track));
                     };
 
                     let filename_no_idx = &path.file_name().and_then(|s| s.to_str()).unwrap()[5..];
@@ -218,10 +212,7 @@ impl ArchiveIndex {
 
                 // move the track to the removed folder
                 let Some(path) = removed.find_downloaded(&playlist_dir) else {
-                    return Err(eyre!(
-                        "could not find downloaded track: {:?}",
-                        track
-                    ));
+                    return Err(eyre!("could not find downloaded track: {:?}", track));
                 };
 
                 let new_path = removed_dir.join(path.file_name().unwrap());
@@ -234,10 +225,7 @@ impl ArchiveIndex {
                 // update the indices of the tracks after the removed track
                 for t in playlist.tracks[idx..].iter_mut() {
                     let Some(path) = t.find_downloaded(&playlist_dir) else {
-                        return Err(eyre!(
-                            "could not find downloaded track: {:?}",
-                            track
-                        ));
+                        return Err(eyre!("could not find downloaded track: {:?}", track));
                     };
 
                     let filename_no_idx = &path.file_name().and_then(|s| s.to_str()).unwrap()[5..];
@@ -293,6 +281,9 @@ pub struct Track {
 }
 
 impl Track {
+    // this is really inefficient. now that we're generating our own filenames,
+    // it will be worth having a deterministic filename so we can just check
+    // if the file exists directly
     pub fn find_downloaded(&self, playlist_dir: impl AsRef<Path>) -> Option<PathBuf> {
         let playlist_dir = playlist_dir.as_ref();
 
