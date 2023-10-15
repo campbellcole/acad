@@ -137,6 +137,7 @@ pub async fn download_track(track: &Track, dest: impl AsRef<Path> + Debug) -> Re
         .arg("-o")
         .arg(path)
         .arg("--add-metadata")
+        .arg("--write-thumbnail")
         .arg(&track.url);
 
     cmd.stderr(Stdio::piped());
