@@ -70,6 +70,20 @@ pub enum SourceType {
 static INSTANCE: OnceLock<AppConfig> = OnceLock::new();
 
 impl AppConfig {
+    #[cfg(test)]
+    const TEST_DATA_ROOT: &'static str = "/tmp/ACAD_TESTS";
+
+    #[cfg(test)]
+    pub fn initialize() {
+        INSTANCE
+            .set(AppConfig {
+                paths: Paths::from_root(PathBuf::from(Self::TEST_DATA_ROOT)),
+                save_thumbnails: false,
+                sources: Vec::new(),
+            })
+            .unwrap();
+    }
+
     pub fn load() -> Result<()> {
         let data_folder =
             std::env::var("ACAD_DATA_FOLDER").wrap_err("failed to get ACAD_DATA_FOLDER")?;

@@ -115,3 +115,47 @@ impl TrackHandle {
         PathBuf::from(format!("../{}", stripped.display()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_skip_nulls() {
+        #[derive(Deserialize)]
+        struct SkipNulls {
+            #[serde(deserialize_with = "skip_nulls")]
+            a: Vec<String>,
+        }
+
+        let input = r#"{"a":["hello", null, "world"]}"#;
+        let expected = vec!["hello", "world"];
+
+        let actual: SkipNulls = serde_json::from_str(input).unwrap();
+        assert_eq!(actual.a, expected);
+    }
+
+    #[test]
+    fn test_track_handles() {
+        AppConfig::initialize();
+
+        let track = Track {
+            id: "1234567890".to_string(),
+            uploader: "uploader".to_string(),
+            title: "title".to_string(),
+            url: "https://example.com/fakeuser/track-slug".to_string(),
+            idx: 0,
+        };
+
+        let handle = track.as_handle();
+
+        assert_eq!(
+            handle.track_path,
+            PathBuf::from("/tmp/ACAD_TESTS/audio/1234567890/track.mp3")
+        );
+        assert_eq!(
+            handle.relative_to_playlist_dir(),
+            PathBuf::from("../audio/1234567890/track.mp3")
+        );
+    }
+}
