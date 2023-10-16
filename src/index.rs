@@ -204,8 +204,13 @@ impl AppIndex {
     pub fn save(&self) -> Result<()> {
         let path = &AppConfig::get().paths.index;
 
+        #[cfg(debug_assertions)]
+        let to_string = serde_json::to_string_pretty;
+        #[cfg(not(debug_assertions))]
+        let to_string = serde_json::to_string;
+
         trace!("saving index to {}", path.display());
-        std::fs::write(path, serde_json::to_string_pretty(self)?)?;
+        std::fs::write(path, to_string(self)?)?;
 
         Ok(())
     }
@@ -215,7 +220,7 @@ impl AppIndex {
         trace!("refreshing index");
 
         for source in &AppConfig::get().sources {
-            trace!("updating source: {}", source.url);
+            info!("updating source: {}", source.url);
 
             // this is here so an error will occur if a new source type is added
             match source.kind {
@@ -277,7 +282,7 @@ impl AppIndex {
                     (deleted_tracks, Vec::new())
                 };
 
-            info!(
+            debug!(
                 "{} deleted tracks, {} undeleted tracks",
                 deleted_tracks.len(),
                 undeleted_tracks.len()
@@ -290,7 +295,7 @@ impl AppIndex {
                     (removed_tracks, Vec::new())
                 };
 
-            info!(
+            debug!(
                 "{} removed tracks, {} unremoved tracks",
                 removed_tracks.len(),
                 unremoved_tracks.len()
@@ -303,7 +308,7 @@ impl AppIndex {
                     (restricted_tracks, Vec::new())
                 };
 
-            info!(
+            debug!(
                 "{} restricted tracks, {} unrestricted tracks",
                 restricted_tracks.len(),
                 unrestricted_tracks.len()
