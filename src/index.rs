@@ -25,7 +25,7 @@ pub struct TrackAction<'a> {
     pub action: Action,
 }
 
-macro_rules! op {
+macro_rules! act {
     ($track:ident = $action:ident) => {
         TrackAction {
             track: $track,
@@ -218,11 +218,9 @@ impl AppIndex {
             trace!("updating source: {}", source.url);
 
             // this is here so an error will occur if a new source type is added
-            #[allow(irrefutable_let_patterns)]
-            let SourceType::SoundCloud = source.kind
-            else {
-                unreachable!("only SoundCloud is supported right now");
-            };
+            match source.kind {
+                SourceType::SoundCloud => {}
+            }
 
             let manifest = fetcher::fetch_playlist(&source.url)?;
 
@@ -311,35 +309,35 @@ impl AppIndex {
                 unrestricted_tracks.len()
             );
 
-            let mut operations = Vec::new();
+            let mut actions = Vec::new();
 
-            operations.extend(deleted_tracks.iter().map(|t| op!(t = Deleted)));
-            operations.extend(undeleted_tracks.iter().map(|t| op!(t = Undeleted)));
-            operations.extend(removed_tracks.iter().map(|t| op!(t = Removed)));
-            operations.extend(unremoved_tracks.iter().map(|t| op!(t = Unremoved)));
-            operations.extend(restricted_tracks.iter().map(|t| op!(t = Restricted)));
-            operations.extend(unrestricted_tracks.iter().map(|t| op!(t = Unrestricted)));
+            actions.extend(deleted_tracks.iter().map(|t| act!(t = Deleted)));
+            actions.extend(undeleted_tracks.iter().map(|t| act!(t = Undeleted)));
+            actions.extend(removed_tracks.iter().map(|t| act!(t = Removed)));
+            actions.extend(unremoved_tracks.iter().map(|t| act!(t = Unremoved)));
+            actions.extend(restricted_tracks.iter().map(|t| act!(t = Restricted)));
+            actions.extend(unrestricted_tracks.iter().map(|t| act!(t = Unrestricted)));
 
             // we want the add operations to come last so the downloads are done last.
             // this is done so if there are errors in the code handling track state changes,
             // we will know before we download tons of audio and crash which would throw away all
             // of the progress we made
-            operations.extend(new_tracks.iter().map(|t| op!(t = Added)));
+            actions.extend(new_tracks.iter().map(|t| act!(t = Added)));
 
-            info!("{} operations to perform", operations.len());
+            info!("{} actions to handle", actions.len());
 
-            for operation in operations {
+            for action in actions {
                 debug!(
-                    "performing operation {:?} on track {}",
-                    operation.action, operation.track.title
+                    "handling action {:?} on track {}",
+                    action.action, action.track.title
                 );
-                let track = operation.track;
+                let track = action.track;
 
-                let actions = operation.action.necessary_operations();
+                let operations = action.action.necessary_operations();
 
-                for action in actions {
-                    trace!("performing action {:?}", action);
-                    action.perform(track, &manifest)?;
+                for op in operations {
+                    trace!("performing operation {:?}", op);
+                    op.perform(track, &manifest)?;
                 }
             }
 
