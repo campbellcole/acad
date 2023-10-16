@@ -2,10 +2,6 @@ FROM rustlang/rust:nightly-bullseye-slim as builder
 
 WORKDIR /usr/src/acad
 
-# install cmake (required for building snmalloc)
-# RUN apt update
-# RUN apt install cmake -y
-
 # create skeleton project
 RUN cargo init
 
