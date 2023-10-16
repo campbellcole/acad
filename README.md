@@ -12,3 +12,4 @@
 - ~~Remake `Dockerfile`~~
 - Instead of adding and removing entries from a playlist file, we should generate the playlist
   file all at once so we can control the order of the entries to keep them equal to the source playlist
+- Finish writing tests
