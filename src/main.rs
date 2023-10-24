@@ -14,6 +14,7 @@ extern crate serde;
 pub mod config;
 pub mod fetcher;
 pub mod index;
+pub mod m3u;
 pub mod model;
 pub mod util;
 
