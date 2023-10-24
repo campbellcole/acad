@@ -95,7 +95,7 @@ impl Operation {
                     .wrap_err("failed to read track metadata to write new state to")?;
 
                 let msg = format!(
-                    "This track was {}. {} ({})",
+                    "This track was {}. {} ({})\n",
                     match state {
                         Action::Added => "added to the playlist",
                         Action::Removed => "removed from the playlist",
@@ -132,16 +132,16 @@ impl Operation {
                     reader.entries().collect::<Result<Vec<_>, _>>()?
                 };
 
-                if playlist.iter().any(|e| {
-                    matches!(e, Entry::Path(p) if p == &track_handle.relative_to_playlist_dir())
-                }) {
+                if playlist.iter().any(
+                    |e| matches!(e, Entry::Path(p) if p == &track_handle.playlist_entry_path()),
+                ) {
                     warn!("track is already in playlist!");
                     return Ok(());
                 }
 
                 trace!("playlist has {} entries", playlist.len());
 
-                playlist.push(m3u::path_entry(&track_handle.relative_to_playlist_dir()));
+                playlist.push(m3u::path_entry(&track_handle.playlist_entry_path()));
 
                 let mut file = std::fs::File::create(&playlist_handle.m3u_path)?;
                 let mut writer = m3u::Writer::new(&mut file);
@@ -164,7 +164,9 @@ impl Operation {
 
                 trace!("before removal: playlist has {} entries", playlist.len());
 
-                playlist.retain(|e| !matches!(e, Entry::Path(p) if p == &track_handle.relative_to_playlist_dir()));
+                playlist.retain(
+                    |e| !matches!(e, Entry::Path(p) if p == &track_handle.playlist_entry_path()),
+                );
 
                 trace!("after removal: playlist has {} entries", playlist.len());
 

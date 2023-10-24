@@ -7,6 +7,12 @@ pub struct AppConfig {
     #[serde(skip_deserializing)]
     pub paths: Paths,
     pub save_thumbnails: bool,
+    /// The value of the `music_directory` option given to MPD. Used to write
+    /// playlist files that can actually be read by MPD (MPD does not handle
+    /// relative paths correctly, so we have to write the absolute path of
+    /// each track according to the filesystem MPD has access to [i.e. we
+    /// can't use the Docker volume's path because MPD doesn't see the same fs])
+    pub mpd_music_dir: Option<PathBuf>,
     pub sources: Vec<Source>,
 }
 
@@ -79,6 +85,7 @@ impl AppConfig {
             .set(AppConfig {
                 paths: Paths::from_root(PathBuf::from(Self::TEST_DATA_ROOT)),
                 save_thumbnails: false,
+                mpd_music_dir: None,
                 sources: Vec::new(),
             })
             .unwrap();
