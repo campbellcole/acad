@@ -33,6 +33,9 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
+          load: false
+          cache-from: type=gha
+          cache-to: type=gha
           tags: |
             ghcr.io/campbellcole/acad:latest
             ghcr.io/campbellcole/acad:${{ env.RELEASE_VERSION }}
