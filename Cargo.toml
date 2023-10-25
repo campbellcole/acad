@@ -1,6 +1,10 @@
 [package]
 name = "acad"
-version = "0.2.0"
+version = "0.3.0"
+authors = ["Campbell M. Cole <pslightjs@gmail.com>"]
+description = "A SoundCloud archival daemon"
+homepage = "https://github.com/campbellcole/acad"
+license = "MIT"
 edition = "2021"
 
 [dependencies]
