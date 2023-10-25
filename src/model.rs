@@ -105,23 +105,23 @@ pub struct TrackHandle {
 }
 
 impl TrackHandle {
-    /// Returns the `track_path` relative to the playlist directory if `mpd_music_dir` is None,
-    /// otherwise returns the absolute path to the track as addressed by MPD, not the Docker container.
+    /// Returns the path of this track relative to the MPD music directory.
+    ///
+    /// If `AppConfig.mpd_music_dir` is None, we will assume that MPD's `music_directory` is set
+    /// to the same directory as `AppConfig.paths.audio` (producing a path like `<id>/track.mp3`)
+    ///
+    /// If `AppConfig.mpd_music_dir` is Some, we will append `<id>/track.mp3` onto that path
+    /// (producing a path like `<mpd_music_dir>/<id>/track.mp3`).
     pub fn playlist_entry_path(&self) -> PathBuf {
-        if let Some(mpd_music_dir) = &AppConfig::get().mpd_music_dir {
-            let stripped = self
-                .track_path
-                .strip_prefix(&AppConfig::get().paths.audio)
-                .unwrap();
+        let stripped = self
+            .track_path
+            .strip_prefix(&AppConfig::get().paths.audio)
+            .unwrap();
 
+        if let Some(mpd_music_dir) = &AppConfig::get().mpd_music_dir {
             mpd_music_dir.join(stripped)
         } else {
-            let stripped = self
-                .track_path
-                .strip_prefix(&AppConfig::get().paths.root)
-                .unwrap();
-
-            PathBuf::from(format!("../{}", stripped.display()))
+            stripped.to_path_buf()
         }
     }
 }
@@ -165,7 +165,7 @@ mod tests {
         );
         assert_eq!(
             handle.playlist_entry_path(),
-            PathBuf::from("../audio/1234567890/track.mp3")
+            PathBuf::from("1234567890/track.mp3")
         );
     }
 }
