@@ -6,6 +6,7 @@ description = "A SoundCloud archival daemon"
 homepage = "https://github.com/campbellcole/acad"
 license = "MIT"
 edition = "2021"
+publish = false
 
 [dependencies]
 color-eyre = "0.6.2"

@@ -3,7 +3,7 @@
 The **A**mber-**C**ast **A**rchive **D**aemon (acad) is a simple daemon that archives
 SoundCloud playlists. This tool will download every song in the playlists given to it
 and write `.m3u` playlist definitions for each playlist. The index automatically deduplicates
-songs and playlists, so if multiple playlists contain the same song, it will only be downloaded once.
+songs, so if multiple playlists contain the same song, it will only be downloaded once.
 The index is intended to be used as a music library for MPD (See [MPD Integration](#mpd-integration)).
 
 This tool also keeps track of changes in the playlist and will update the definitions and index accordingly.
@@ -20,23 +20,15 @@ Below is a summary of operations performed in response to playlist changes:
 
 ## Usage
 
-The only supported way to use acad is through Docker. There are currently no automated builds so you will have to build
-the image yourself:
-
-```sh
-git clone https://github.com/campbellcole/acad.git
-cd acad
-docker buildx build -t acad .
-```
-
-Once you have built the image, you can run it with the following command:
+The only supported way to use acad is through Docker:
 
 ```sh
 docker run -d \
     --name acad \
     --restart unless-stopped \
     -v /path/to/acad/data:/data \
-    -e ACAD_DATA_FOLDER=/data
+    -e ACAD_DATA_FOLDER=/data \
+    ghcr.io/campbellcole/acad:latest
 
 # you can enable logging using the RUST_LOG environment variable. e.g.:
 # -e RUST_LOG="acad=trace,info"
