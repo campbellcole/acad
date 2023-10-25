@@ -47,7 +47,7 @@ docker run -d \
 acad is configured using a JSON file. This file must be at `$ACAD_DATA_FOLDER/config.json` in the Docker container.
 The following is an example configuration file:
 
-```json
+```jsonc
 {
   // save thumbnails for songs. saves the thumbnail as `$ACAD_DATA_FOLDER/audio/<id>/cover.jpg`
   // can be retrieved through MPDs `albumart` command (NOT `readpicture`!)
