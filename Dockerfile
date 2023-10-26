@@ -12,7 +12,7 @@ COPY Cargo.lock Cargo.lock
 
 # build dependencies
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    cargo build --release
+    cargo build --release --locked
 
 # copy over project
 COPY src ./src
@@ -20,7 +20,7 @@ COPY src ./src
 # build project
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     touch src/main.rs && \
-    cargo build --release
+    cargo build --release --locked
 
 FROM ubuntu:latest
 
