@@ -2,6 +2,8 @@ use std::{path::PathBuf, sync::OnceLock};
 
 use color_eyre::eyre::{eyre, Context, Result};
 
+use crate::source::SourceDefinition;
+
 #[derive(Debug, Deserialize)]
 pub struct AppConfig {
     #[serde(skip_deserializing)]
@@ -13,7 +15,7 @@ pub struct AppConfig {
     /// each track according to the filesystem MPD has access to [i.e. we
     /// can't use the Docker volume's path because MPD doesn't see the same fs])
     pub mpd_music_dir: Option<PathBuf>,
-    pub sources: Vec<Source>,
+    pub sources: Vec<SourceDefinition>,
 }
 
 #[derive(Debug, Default)]
@@ -58,19 +60,6 @@ impl Paths {
 
         Ok(())
     }
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Source {
-    #[serde(rename = "type")]
-    pub kind: SourceType,
-    pub url: String,
-}
-
-#[derive(Debug, Clone, Copy, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum SourceType {
-    SoundCloud,
 }
 
 static INSTANCE: OnceLock<AppConfig> = OnceLock::new();

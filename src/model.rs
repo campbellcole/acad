@@ -85,8 +85,6 @@ impl Track {
     pub fn as_handle(&self) -> TrackHandle {
         let root_dir = AppConfig::get().paths.audio.join(&self.id);
         let track_path = root_dir.join("track.mp3");
-
-        // FIXME: it is not guaranteed that the cover art will be JPEG
         let album_art_path = root_dir.join("cover.jpg");
 
         TrackHandle {

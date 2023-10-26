@@ -12,10 +12,10 @@ extern crate tracing;
 extern crate serde;
 
 pub mod config;
-pub mod fetcher;
 pub mod index;
 pub mod m3u;
 pub mod model;
+pub mod source;
 pub mod util;
 
 #[global_allocator]

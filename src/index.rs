@@ -4,10 +4,10 @@ use color_eyre::eyre::{Context, Result};
 use id3::{frame, TagLike};
 
 use crate::{
-    config::{AppConfig, SourceType},
-    fetcher::{self, TrackStatus},
+    config::AppConfig,
     m3u::write_playlist,
     model::{Playlist, Track},
+    source::{Fetcher, SourceType, TrackDownloadStatus, TrackStatus},
     util,
 };
 
@@ -77,9 +77,21 @@ pub enum Operation {
 
 impl Operation {
     #[instrument(skip(self, playlist))]
-    pub fn perform(self, track: &Track, playlist: &Playlist) -> Result<()> {
+    pub fn perform(
+        self,
+        source_type: SourceType,
+        track: &Track,
+        playlist: &Playlist,
+    ) -> Result<()> {
         match self {
-            Self::Download => fetcher::ensure_track_downloaded(track)?,
+            Self::Download => match source_type.ensure_track_downloaded(track)? {
+                TrackDownloadStatus::Downloaded => {
+                    info!("downloaded track");
+                }
+                TrackDownloadStatus::AlreadyDownloaded => {
+                    debug!("track was already downloaded so we did not download it again");
+                }
+            },
             Self::AddMetadataMarker(state) => {
                 trace!("adding metadata marker for {:?}", state);
 
@@ -159,12 +171,7 @@ impl AppIndex {
         for source in &AppConfig::get().sources {
             info!("updating source: {}", source.url);
 
-            // this is here so an error will occur if a new source type is added
-            match source.kind {
-                SourceType::SoundCloud => {}
-            }
-
-            let manifest = fetcher::fetch_playlist(&source.url)?;
+            let manifest = source.kind.fetch_playlist(&source)?;
 
             let (new_tracks, missing_tracks) =
                 if let Some(previous_manifest) = self.playlists.get(&source.url) {
@@ -187,7 +194,7 @@ impl AppIndex {
             let mut restricted_tracks = Vec::new();
 
             for track in missing_tracks {
-                match fetcher::fetch_track(&track.url)? {
+                match source.kind.fetch_track(&track)? {
                     TrackStatus::Available(_) => {
                         // if the track is still available, it was manually removed
                         // from the playlist
@@ -279,7 +286,7 @@ impl AppIndex {
 
                 for op in operations {
                     trace!("performing operation {:?}", op);
-                    op.perform(track, &manifest)?;
+                    op.perform(source.kind, track, &manifest)?;
                 }
             }
 
