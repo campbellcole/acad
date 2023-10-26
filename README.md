@@ -1,20 +1,20 @@
 # acad
 
 The **A**mber-**C**ast **A**rchive **D**aemon (acad) is a simple daemon that archives
-SoundCloud playlists. This tool will download every song in the playlists given to it
+SoundCloud and YouTube playlists using [yt-dlp](https://github.com/yt-dlp/yt-dlp). This tool will download every song in the playlists given to it
 and write `.m3u` playlist definitions for each playlist. The index automatically deduplicates
-songs, so if multiple playlists contain the same song, it will only be downloaded once.
+songs, so if multiple playlists contain the same song, it will only be downloaded once per streaming platform.
 The index is intended to be used as a music library for MPD (See [MPD Integration](#mpd-integration)).
 
 This tool also keeps track of changes in the playlist and will update the definitions and index accordingly.
 Below is a summary of operations performed in response to playlist changes:
 
-| Change                       | Action                                                                |
-| ---------------------------- | --------------------------------------------------------------------- |
-| Song added to playlist       | Song is downloaded and added to playlist definition                   |
-| Song removed from playlist   | Song is removed from playlist definition (audio is kept in the index) |
-| Song deleted from SoundCloud | Song is kept in the playlist definition and index                     |
-| Song became geo-restricted   | Song is kept in the playlist definition and index                     |
+| Change                               | Action                                                                |
+| ------------------------------------ | --------------------------------------------------------------------- |
+| Song added to playlist               | Song is downloaded and added to playlist definition                   |
+| Song removed from playlist           | Song is removed from playlist definition (audio is kept in the index) |
+| Song deleted from SoundCloud/YouTube | Song is kept in the playlist definition and index                     |
+| Song became geo-restricted           | Song is kept in the playlist definition and index                     |
 
 **In no situation will acad delete an audio file. The point of acad is to make a permanent record of all of your music.**
 
@@ -50,14 +50,15 @@ The following is an example configuration file:
   // here is where you define your playlists
   "sources": [
     {
-      // must be `soundcloud` for now
       "type": "soundcloud",
       // the URL of the soundcloud playlist. supports private playlists if URL is a private share URL.
       // if you use a private share URL, remove the query parameters from the URL so it looks like this:
       "url": "https://soundcloud.com/artist/sets/playlist-name/s-XXXXXXXXXXX"
     },
     {
-      // ...
+      "type": "youtube",
+      // the URL of the youtube playlist. supports public and unlisted playlists.
+      "url": "https://youtube.com/playlist?list=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     }
   ]
 }
@@ -67,7 +68,7 @@ The following is an example configuration file:
 
 acad nicely integrates with MPD. If you do not have an existing MPD installation, you can simply set
 MPD's `music_directory` option to `$ACAD_DATA_FOLDER/audio`, as well as MPD's `playlist_directory` option
-to `$ACAD_DATA_FOLDER/playlists`. With this setup, your MPD library will be 1:1 with your SoundCloud playlists.
+to `$ACAD_DATA_FOLDER/playlists`. With this setup, your MPD library will be 1:1 with your playlists.
 
 If you already have an MPD library set up, symlink `$ACAD_DATA_FOLDER/audio` to your existing `music_directory`.
 You will likely have to change `mpd_music_dir` to make sure the playlist definitions correctly reference the
