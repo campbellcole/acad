@@ -124,6 +124,9 @@ where
 
 #[instrument]
 fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus> {
+    // currently there is no difference between platforms when it comes to actually
+    // downloading tracks but we will keep this for when that inevitably changes.
+
     trace!("ensuring track is downloaded");
 
     let handle = track.as_handle();
@@ -136,7 +139,7 @@ fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus>
     let mut cmd = Command::new("yt-dlp");
 
     cmd.args([
-        // extract audio (not necessary for SoundCloud but will be useful if other services are added)
+        // extract audio (not necessary for SoundCloud but is for YouTube)
         "-x",
         //
         "--audio-format",
