@@ -180,6 +180,13 @@ fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus>
 
     trace!("found thumbnail: {}", thumbnail.path().display());
 
+    if thumbnail.path().extension().is_some_and(|ext| ext == "jpg") {
+        trace!("thumbnail is already in JPG format, skipping conversion");
+        // we have to exit here otherwise the file will be deleted because
+        // the extension didn't change (and there was no new file created)
+        return Ok(TrackDownloadStatus::Downloaded);
+    }
+
     let img = image::open(thumbnail.path())?;
 
     img.save(&handle.album_art_path)?;

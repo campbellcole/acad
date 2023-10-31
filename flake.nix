@@ -22,8 +22,8 @@
             pkg-config
             clang
             rust-analyzer
-            geckodriver
             yt-dlp
+            cargo-outdated
           ];
 
           buildInputs = [
