@@ -5,7 +5,7 @@ use std::{
 
 use color_eyre::eyre::{eyre, Context, Result};
 
-use crate::model::{Playlist, SingleTrack, Track};
+use crate::model::{Playlist, SingleTrack, Track, TrackHandle};
 
 pub mod soundcloud;
 pub mod youtube;
@@ -171,6 +171,14 @@ fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus>
 
     debug!("track downloaded, converting thumbnail to JPG");
 
+    if let Err(err) = convert_thumbnail(&handle) {
+        warn!("failed to convert thumbnail to JPG: {}", err);
+    }
+
+    Ok(TrackDownloadStatus::Downloaded)
+}
+
+fn convert_thumbnail(handle: &TrackHandle) -> Result<()> {
     // convert the downloaded thumbnail from whatever file format it's in to JPG
     let dir = fs::read_dir(&handle.root_dir)?;
 
@@ -184,7 +192,7 @@ fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus>
         trace!("thumbnail is already in JPG format, skipping conversion");
         // we have to exit here otherwise the file will be deleted because
         // the extension didn't change (and there was no new file created)
-        return Ok(TrackDownloadStatus::Downloaded);
+        return Ok(());
     }
 
     let img = image::open(thumbnail.path())?;
@@ -198,7 +206,7 @@ fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus>
 
     fs::remove_file(thumbnail.path())?;
 
-    Ok(TrackDownloadStatus::Downloaded)
+    Ok(())
 }
 
 macro_rules! fail {

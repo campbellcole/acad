@@ -64,6 +64,18 @@ The following is an example configuration file:
 }
 ```
 
+#### Note on platform support
+
+acad officially supports SoundCloud and YouTube but it does not make any attempt to ensure a source's URL matches
+it's source type. This means that, if you are feeling lucky, you can try to use any URL that yt-dlp supports as a
+source URL and acad will attempt to index it. Currently, the only platform specific code in acad is responsible for
+interpreting error messages from yt-dlp and determining if a song is geo-restricted/missing. I personally have not
+tried using another platform but I suspect that it will work fine, especially if you set the source type to `youtube`.
+
+If you want to try this, make sure you only provide playlist URLs. The program will absolutely crash if you provide
+a track URL because acad assumes yt-dlp will output a playlist manifest, not a track manifest (though this could
+easily be modified).
+
 ## MPD Integration
 
 acad nicely integrates with MPD. If you do not have an existing MPD installation, you can simply set
