@@ -9,13 +9,12 @@ pub struct YouTube;
 impl Fetcher for YouTube {
     fn fetch_playlist(&self, source: &SourceDefinition) -> Result<Playlist> {
         super::fetch_playlist_generic(&source.url, |output| {
-            let stdout = String::from_utf8_lossy(&output.stdout);
             let stderr = String::from_utf8_lossy(&output.stderr);
 
             let lines = stderr.lines().collect::<Vec<_>>();
 
             if !lines.iter().all(|line| line.contains("Video unavailable")) {
-                return fail!(stdout, stderr);
+                return fail!(stderr);
             }
 
             warn!(
@@ -29,7 +28,6 @@ impl Fetcher for YouTube {
 
     fn fetch_track(&self, track: &Track) -> color_eyre::eyre::Result<TrackStatus> {
         super::fetch_track_generic(&track.url, |output| {
-            let stdout = String::from_utf8_lossy(&output.stdout);
             let stderr = String::from_utf8_lossy(&output.stderr);
 
             let lines = stderr.lines().collect::<Vec<_>>();
@@ -45,7 +43,7 @@ impl Fetcher for YouTube {
                 return Ok(TrackStatus::NotFound);
             }
 
-            fail!(stdout, stderr)
+            fail!(stderr)
         })
     }
 

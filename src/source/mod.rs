@@ -86,12 +86,17 @@ where
     let output = cmd.output()?;
 
     if !output.status.success() {
-        on_error(&output)?;
+        if let Err(err) = on_error(&output) {
+            warn!(
+                "yt-dlp reported errors, trying to parse manifest anyway: {}",
+                err
+            );
+        }
     }
 
     // lossless because we expect yt-dlp to output valid JSON
     // so non-utf8 data should be an error
-    let stdout = String::from_utf8(output.stdout)?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
 
     Ok(serde_json::from_str(&stdout)?)
 }
@@ -114,10 +119,18 @@ where
     let output = cmd.output()?;
 
     if !output.status.success() {
-        return on_error(&output);
+        match on_error(&output) {
+            Ok(status) => return Ok(status),
+            Err(err) => {
+                warn!(
+                    "yt-dlp reported errors, trying to parse manifest anyway: {}",
+                    err
+                );
+            }
+        }
     }
 
-    let stdout = String::from_utf8(output.stdout)?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
 
     Ok(TrackStatus::Available(serde_json::from_str(&stdout)?))
 }
@@ -210,18 +223,8 @@ fn convert_thumbnail(handle: &TrackHandle) -> Result<()> {
 }
 
 macro_rules! fail {
-    ($output:ident) => {{
-        let stderr = String::from_utf8_lossy(&$output.stderr);
-        let stdout = String::from_utf8_lossy(&$output.stdout);
-
-        fail!(stdout, stderr)
-    }};
-    ($stdout:ident, $stderr:ident) => {
-        Err(eyre!(
-            "yt-dlp failed: (stderr: {:?}) (stdout: {:?})",
-            $stderr,
-            $stdout
-        ))
+    ($stderr:ident) => {
+        Err(eyre!("yt-dlp failed: {:?}", $stderr))
     };
 }
 

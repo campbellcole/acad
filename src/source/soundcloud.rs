@@ -17,7 +17,6 @@ impl Fetcher for SoundCloud {
             // for any single track, even though it will continue to fetch
             // the rest of the tracks. so we can't just return an error here.
             // we have to ensure all lines of stderr are just proxy warnings.
-            let stdout = String::from_utf8_lossy(&output.stdout);
             let stderr = String::from_utf8_lossy(&output.stderr);
 
             let lines = stderr.lines().collect::<Vec<_>>();
@@ -28,7 +27,7 @@ impl Fetcher for SoundCloud {
                     && chunk[0].contains(GEO_ERR_LINE_1)
                     && chunk[1].contains(GEO_ERR_LINE_2)
             }) {
-                return fail!(stdout, stderr);
+                return fail!(stderr);
             }
 
             warn!(
@@ -43,7 +42,6 @@ impl Fetcher for SoundCloud {
     fn fetch_track(&self, track: &Track) -> Result<TrackStatus> {
         super::fetch_track_generic(&track.url, |output| {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            let stdout = String::from_utf8_lossy(&output.stdout);
 
             let lines = stderr.lines().collect::<Vec<_>>();
 
@@ -58,7 +56,7 @@ impl Fetcher for SoundCloud {
                 return Ok(TrackStatus::NotFound);
             }
 
-            fail!(stdout, stderr)
+            fail!(stderr)
         })
     }
 
