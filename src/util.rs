@@ -28,13 +28,13 @@ where
     let mut removed = Vec::new();
 
     for item in old {
-        if new.iter().find(|i| cmp(i, item)).is_none() {
+        if !new.iter().any(|i| cmp(i, item)) {
             removed.push(item);
         }
     }
 
     for item in new {
-        if old.iter().find(|i| cmp(i, item)).is_none() {
+        if !old.iter().any(|i| cmp(i, item)) {
             added.push(item);
         }
     }
@@ -51,13 +51,13 @@ where
     let mut removed = Vec::new();
 
     for item in old {
-        if new.iter().find(|i| cmp(i, &*item)).is_none() {
+        if !new.iter().any(|i| cmp(i, item)) {
             removed.push(item);
         }
     }
 
     for item in new {
-        if old.iter().find(|i| cmp(i, &*item)).is_none() {
+        if !old.iter().any(|i| cmp(i, item)) {
             added.push(item);
         }
     }
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn diff_ref_with() {
         let old = vec!["old1", "old2", "both"];
-        let new = vec!["new1", "both", "new2"];
+        let new = ["new1", "both", "new2"];
         let new_refs = new.iter().collect::<Vec<_>>();
 
         let (added, removed) = util::diff_ref_with(&old, new_refs, |i1, i2| i1 == i2);

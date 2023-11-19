@@ -171,7 +171,7 @@ impl AppIndex {
         for source in &AppConfig::get().sources {
             info!("updating source: {}", source.url);
 
-            let manifest = source.kind.fetch_playlist(&source)?;
+            let manifest = source.kind.fetch_playlist(source)?;
 
             let (new_tracks, missing_tracks) =
                 if let Some(previous_manifest) = self.playlists.get(&source.url) {
@@ -194,7 +194,7 @@ impl AppIndex {
             let mut restricted_tracks = Vec::new();
 
             for track in missing_tracks {
-                match source.kind.fetch_track(&track)? {
+                match source.kind.fetch_track(track)? {
                     TrackStatus::Available(_) => {
                         // if the track is still available, it was manually removed
                         // from the playlist
@@ -311,7 +311,7 @@ impl AppIndex {
         // to each track's index in the playlist
         debug!("writing playlists");
 
-        for (_, playlist) in &self.playlists {
+        for playlist in self.playlists.values() {
             write_playlist(playlist)?;
         }
 
