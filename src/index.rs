@@ -39,19 +39,19 @@ pub enum Action {
     /// This track was added to the playlist
     Added,
 
-    /// This track was removed from the playlist but still exists on SoundCloud
+    /// This track was removed from the playlist but still exists
     Removed,
     /// This track had been removed from the playlist but was added back
     Unremoved,
 
-    /// This track was deleted from SoundCloud
+    /// This track was deleted
     Deleted,
-    /// This track had been deleted from SoundCloud but was added back
+    /// This track had been deleted but was added back
     Undeleted,
 
-    /// This track was geo restricted
+    /// This track was restricted (private, geo-restricted, etc.)
     Restricted,
-    /// This track had been geo restricted but is not anymore
+    /// This track had been restricted but is not anymore
     Unrestricted,
 }
 
@@ -106,10 +106,10 @@ impl Operation {
                         Action::Added => "added to the playlist",
                         Action::Removed => "removed from the playlist",
                         Action::Unremoved => "added back to the playlist",
-                        Action::Deleted => "deleted from SoundCloud",
-                        Action::Undeleted => "added back to SoundCloud",
-                        Action::Restricted => "geo restricted",
-                        Action::Unrestricted => "no longer geo restricted",
+                        Action::Deleted => "deleted",
+                        Action::Undeleted => "added back",
+                        Action::Restricted => "restricted (private, geo-restricted, etc.)",
+                        Action::Unrestricted => "no longer restricted",
                     },
                     playlist.title,
                     playlist.id,

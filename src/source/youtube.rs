@@ -32,7 +32,9 @@ impl Fetcher for YouTube {
 
             let lines = stderr.lines().collect::<Vec<_>>();
 
-            if lines.len() == 1 && lines[0].contains("Video unavailable") {
+            if lines.len() == 1
+                && (lines[0].contains("Video unavailable") || lines[0].contains("Private video"))
+            {
                 return Ok(TrackStatus::Restricted);
             }
 
