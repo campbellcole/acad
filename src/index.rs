@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    sync::atomic::{AtomicBool, Ordering},
+};
 
 use color_eyre::eyre::{Context, Result};
 use id3::{frame, TagLike};
@@ -135,6 +138,8 @@ fn cmp_ids(t1: &Track, t2: &Track) -> bool {
     t1.id == t2.id
 }
 
+static IS_REFRESHING: AtomicBool = AtomicBool::new(false);
+
 impl AppIndex {
     pub fn load() -> Result<Self> {
         trace!("loading index");
@@ -148,6 +153,10 @@ impl AppIndex {
         } else {
             Ok(Self::default())
         }
+    }
+
+    pub fn is_refreshing() -> bool {
+        IS_REFRESHING.load(Ordering::Relaxed)
     }
 
     pub fn save(&self) -> Result<()> {
@@ -167,6 +176,7 @@ impl AppIndex {
     #[instrument(skip(self))]
     pub fn refresh(&mut self) -> Result<()> {
         trace!("refreshing index");
+        IS_REFRESHING.store(true, Ordering::Relaxed);
 
         for source in &AppConfig::get().sources {
             info!("updating source: {}", source.url);
@@ -314,6 +324,8 @@ impl AppIndex {
         for playlist in self.playlists.values() {
             write_playlist(playlist)?;
         }
+
+        IS_REFRESHING.store(false, Ordering::Relaxed);
 
         Ok(())
     }

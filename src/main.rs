@@ -37,6 +37,15 @@ fn main() -> Result<()> {
 
     color_eyre::install()?;
 
+    ctrlc::set_handler(|| {
+        info!("received termination signal, exiting");
+        if AppIndex::is_refreshing() {
+            warn!("index is currently refreshing! all progress except downloads will be lost");
+        }
+        std::process::exit(0);
+    })
+    .unwrap();
+
     trace!("initialized, loading config");
 
     AppConfig::load().wrap_err("failed to load AppConfig")?;
