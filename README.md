@@ -37,7 +37,7 @@ docker run -d \
 ## Configuration
 
 acad is configured using a JSON file. This file must be at `$ACAD_DATA_FOLDER/config.json` in the Docker container.
-The following is an example configuration file:
+The following is an example configuration file (comments are supported, as well as trailing commas):
 
 ```jsonc
 {
@@ -47,13 +47,19 @@ The following is an example configuration file:
   // optional. forces playlist definitions to use absolute paths. if you are having trouble getting MPD
   // to read the playlists, set this option to the exact path given to MPD's `music_directory` option
   "mpd_music_dir": "/path/to/mpd/music_directory",
+  // optional. define when refreshes should happen using a cron expression. if not provided, acad will
+  // refresh every ~24 hours (starting after indexing finishes; prone to drifting). see https://crontab.guru/
+  // for help with cron expressions
+  "refresh_cron": "0 0 * * *",
   // here is where you define your playlists
   "sources": [
     {
       "type": "soundcloud",
       // the URL of the soundcloud playlist. supports private playlists if URL is a private share URL.
       // if you use a private share URL, remove the query parameters from the URL so it looks like this:
-      "url": "https://soundcloud.com/artist/sets/playlist-name/s-XXXXXXXXXXX"
+      "url": "https://soundcloud.com/artist/sets/playlist-name/s-XXXXXXXXXXX",
+      // optional. if `true`, this playlist will only be indexed once
+      "inactive": true
     },
     {
       "type": "youtube",
