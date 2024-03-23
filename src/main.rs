@@ -1,5 +1,4 @@
-use std::time::Duration;
-
+use chrono::Local;
 use color_eyre::eyre::{Context, Result};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
@@ -51,13 +50,27 @@ fn main() -> Result<()> {
     AppConfig::load().wrap_err("failed to load AppConfig")?;
     AppConfig::get().paths.ensure_all()?;
 
+    let next_refresh = || {
+        AppConfig::get()
+            .refresh_cron
+            .as_ref()
+            .and_then(|sched| sched.upcoming(Local).next())
+            .unwrap_or_else(|| Local::now() + chrono::Duration::try_hours(24).unwrap())
+    };
+
     let mut index = AppIndex::load()?;
 
     loop {
         index.refresh()?;
         index.save()?;
 
-        info!("sleeping for 24 hours");
-        std::thread::sleep(Duration::from_secs(60 * 60 * 24));
+        let now = Local::now();
+        let next = next_refresh();
+        debug!("next refresh at: {:?}", next);
+
+        let sleep_duration = next.signed_duration_since(now);
+        info!("sleeping for {}", sleep_duration);
+
+        std::thread::sleep(sleep_duration.to_std()?);
     }
 }

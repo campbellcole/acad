@@ -1,6 +1,11 @@
-use std::{path::PathBuf, sync::OnceLock};
+use std::{
+    ops::{Deref, DerefMut},
+    path::PathBuf,
+    sync::OnceLock,
+};
 
 use color_eyre::eyre::{eyre, Context, Result};
+use serde_with::{serde_as, DisplayFromStr};
 
 use crate::source::SourceDefinition;
 
@@ -16,6 +21,25 @@ pub struct AppConfig {
     /// can't use the Docker volume's path because MPD doesn't see the same fs])
     pub mpd_music_dir: Option<PathBuf>,
     pub sources: Vec<SourceDefinition>,
+    pub refresh_cron: Option<Schedule>,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+pub struct Schedule(#[serde_as(as = "DisplayFromStr")] cron::Schedule);
+
+impl Deref for Schedule {
+    type Target = cron::Schedule;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Schedule {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
 #[derive(Debug, Default)]
@@ -76,6 +100,7 @@ impl AppConfig {
                 save_thumbnails: false,
                 mpd_music_dir: None,
                 sources: Vec::new(),
+                refresh_cron: None,
             })
             .unwrap();
     }

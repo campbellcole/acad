@@ -45,6 +45,8 @@ pub struct SourceDefinition {
     #[serde(rename = "type")]
     pub kind: SourceType,
     pub url: String,
+    #[serde(default)]
+    pub inactive: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -94,8 +96,6 @@ where
         }
     }
 
-    // lossless because we expect yt-dlp to output valid JSON
-    // so non-utf8 data should be an error
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     Ok(serde_json::from_str(&stdout)?)

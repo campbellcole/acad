@@ -181,6 +181,17 @@ impl AppIndex {
         for source in &AppConfig::get().sources {
             info!("updating source: {}", source.url);
 
+            // if the source is inactive and has been indexed before, don't bother
+            if source.inactive
+                && self
+                    .playlists
+                    .get(&source.url)
+                    .is_some_and(|pl| !pl.entries.is_empty())
+            {
+                info!("source is inactive, skipping");
+                continue;
+            }
+
             let manifest = source.kind.fetch_playlist(source)?;
 
             let (new_tracks, missing_tracks) =
