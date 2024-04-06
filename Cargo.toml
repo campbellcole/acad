@@ -1,6 +1,6 @@
 [package]
 name = "acad"
-version = "0.4.5"
+version = "0.4.6"
 authors = ["Campbell M. Cole <pslightjs@gmail.com>"]
 description = "A SoundCloud archival daemon"
 homepage = "https://github.com/campbellcole/acad"
