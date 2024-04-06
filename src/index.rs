@@ -10,6 +10,7 @@ use crate::{
     config::AppConfig,
     m3u::write_playlist,
     model::{Playlist, Track},
+    retry::retry_with,
     source::{Fetcher, SourceType, TrackDownloadStatus, TrackStatus},
     util,
 };
@@ -333,10 +334,15 @@ impl AppIndex {
         debug!("writing playlists");
 
         for playlist in self.playlists.values() {
-            write_playlist(playlist)?;
+            // since the playlist definitions are written so an SFTP mount which is a bit failure prone,
+            // we will retry writing the playlist a few times before giving up. the default retry policy
+            // is 3 retries with an exponential backoff
+            retry_with(|| write_playlist(playlist), "failed to write playlist")?;
         }
 
         IS_REFRESHING.store(false, Ordering::Relaxed);
+
+        self.save()?;
 
         Ok(())
     }

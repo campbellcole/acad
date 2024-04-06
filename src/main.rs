@@ -3,7 +3,11 @@ use color_eyre::eyre::{Context, Result};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
 
-use crate::{config::AppConfig, index::AppIndex};
+use crate::{
+    config::AppConfig,
+    index::AppIndex,
+    retry::{retry_options_with, RetryOptions, RetryPolicy},
+};
 
 #[macro_use]
 extern crate tracing;
@@ -14,6 +18,7 @@ pub mod config;
 pub mod index;
 pub mod m3u;
 pub mod model;
+pub mod retry;
 pub mod source;
 pub mod util;
 
@@ -60,9 +65,10 @@ fn main() -> Result<()> {
 
     let mut index = AppIndex::load()?;
 
+    const RETRY_OPTIONS: RetryOptions = RetryOptions::new().with_policy(RetryPolicy::Immediate);
+
     loop {
-        index.refresh()?;
-        index.save()?;
+        retry_options_with(RETRY_OPTIONS, || index.refresh(), "failed to refresh")?;
 
         let now = Local::now();
         let next = next_refresh();
