@@ -130,9 +130,19 @@ where
         }
     }
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
 
-    Ok(TrackStatus::Available(serde_json::from_str(&stdout)?))
+    let track = match serde_json::from_str(&stdout) {
+        Ok(track) => track,
+        Err(err) => {
+            // parsing the track usually fails if the track has been made private or deleted, so
+            // we should just skip it to prevent the app from retrying indefinitely
+            warn!(json = stdout, "failed to parse track manifest: {}", err);
+            return Ok(TrackStatus::NotFound);
+        }
+    };
+
+    Ok(TrackStatus::Available(track))
 }
 
 #[instrument]
@@ -179,7 +189,7 @@ fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus>
     let output = cmd.output()?;
 
     if !output.status.success() {
-        return fail!(output);
+        source_bail!(output);
     }
 
     debug!("track downloaded, converting thumbnail to JPG");
@@ -222,10 +232,10 @@ fn convert_thumbnail(handle: &TrackHandle) -> Result<()> {
     Ok(())
 }
 
-macro_rules! fail {
-    ($stderr:ident) => {
-        Err(eyre!("yt-dlp failed: {:?}", $stderr))
+macro_rules! source_bail {
+    ($output:ident) => {
+        ::color_eyre::eyre::bail!("yt-dlp failed: {:?}", $output)
     };
 }
 
-pub(crate) use fail;
+pub(crate) use source_bail;

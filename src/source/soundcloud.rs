@@ -1,8 +1,8 @@
-use color_eyre::eyre::{eyre, Result};
+use color_eyre::eyre::Result;
 
 use crate::model::{Playlist, Track};
 
-use super::{fail, Fetcher, SourceDefinition, TrackDownloadStatus, TrackStatus};
+use super::{source_bail, Fetcher, SourceDefinition, TrackDownloadStatus, TrackStatus};
 
 pub struct SoundCloud;
 
@@ -27,7 +27,7 @@ impl Fetcher for SoundCloud {
                     && chunk[0].contains(GEO_ERR_LINE_1)
                     && chunk[1].contains(GEO_ERR_LINE_2)
             }) {
-                return fail!(stderr);
+                source_bail!(stderr);
             }
 
             warn!(
@@ -56,7 +56,7 @@ impl Fetcher for SoundCloud {
                 return Ok(TrackStatus::NotFound);
             }
 
-            fail!(stderr)
+            source_bail!(stderr)
         })
     }
 

@@ -1,8 +1,8 @@
-use color_eyre::eyre::{eyre, Result};
+use color_eyre::eyre::Result;
 
 use crate::model::{Playlist, Track};
 
-use super::{fail, Fetcher, SourceDefinition, TrackDownloadStatus, TrackStatus};
+use super::{source_bail, Fetcher, SourceDefinition, TrackDownloadStatus, TrackStatus};
 
 pub struct YouTube;
 
@@ -14,7 +14,7 @@ impl Fetcher for YouTube {
             let lines = stderr.lines().collect::<Vec<_>>();
 
             if !lines.iter().all(|line| line.contains("Video unavailable")) {
-                return fail!(stderr);
+                source_bail!(stderr);
             }
 
             warn!(
@@ -45,7 +45,7 @@ impl Fetcher for YouTube {
                 return Ok(TrackStatus::NotFound);
             }
 
-            fail!(stderr)
+            source_bail!(stderr)
         })
     }
 
