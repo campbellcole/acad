@@ -1,4 +1,4 @@
-use chrono::Local;
+use chrono::Utc;
 use color_eyre::eyre::{Context, Result};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
@@ -55,12 +55,15 @@ fn main() -> Result<()> {
     AppConfig::load().wrap_err("failed to load AppConfig")?;
     AppConfig::get().paths.ensure_all()?;
 
+    let timezone = AppConfig::get().timezone();
+    let now = || Utc::now().with_timezone(&timezone);
+
     let next_refresh = || {
         AppConfig::get()
             .refresh_cron
             .as_ref()
-            .and_then(|sched| sched.upcoming(Local).next())
-            .unwrap_or_else(|| Local::now() + chrono::Duration::try_hours(24).unwrap())
+            .and_then(|sched| sched.upcoming(timezone).next())
+            .unwrap_or_else(|| now() + chrono::Duration::try_hours(24).unwrap())
     };
 
     let mut index = AppIndex::load()?;
@@ -70,7 +73,7 @@ fn main() -> Result<()> {
     loop {
         retry_options_with(RETRY_OPTIONS, || index.refresh(), "failed to refresh")?;
 
-        let now = Local::now();
+        let now = now();
         let next = next_refresh();
         debug!("next refresh at: {:?}", next);
 
