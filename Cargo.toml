@@ -1,6 +1,6 @@
 [package]
 name = "acad"
-version = "0.4.8"
+version = "0.5.0"
 authors = ["Campbell M. Cole <pslightjs@gmail.com>"]
 description = "A SoundCloud archival daemon"
 homepage = "https://github.com/campbellcole/acad"
@@ -10,7 +10,7 @@ publish = false
 
 [dependencies]
 chrono = "0.4.35"
-chrono-tz = { version = "0.9", features = ["serde"] }
+chrono-tz = { version = "0.10", features = ["serde"] }
 iana-time-zone = "0.1"
 color-eyre = "0.6.2"
 cron = "0.12.1"
