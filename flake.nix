@@ -5,6 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { self, nixpkgs, flake-utils, rust-overlay }:
@@ -21,7 +22,6 @@
           nativeBuildInputs = [
             pkg-config
             clang
-            rust-analyzer
             yt-dlp
             cargo-outdated
           ];

@@ -105,11 +105,12 @@ pub struct TrackHandle {
 impl TrackHandle {
     /// Returns the path of this track relative to the MPD music directory.
     ///
-    /// If `AppConfig.mpd_music_dir` is None, we will assume that MPD's `music_directory` is set
-    /// to the same directory as `AppConfig.paths.audio` (producing a path like `<id>/track.mp3`)
+    /// If `AppConfig.mpd_music_dir` is None, we will assume that MPD's
+    /// `music_directory` is set to the same directory as
+    /// `AppConfig.paths.audio` (producing a path like `<id>/track.mp3`)
     ///
-    /// If `AppConfig.mpd_music_dir` is Some, we will append `<id>/track.mp3` onto that path
-    /// (producing a path like `<mpd_music_dir>/<id>/track.mp3`).
+    /// If `AppConfig.mpd_music_dir` is Some, we will append `<id>/track.mp3`
+    /// onto that path (producing a path like `<mpd_music_dir>/<id>/track.mp3`).
     pub fn playlist_entry_path(&self) -> PathBuf {
         let stripped = self
             .track_path

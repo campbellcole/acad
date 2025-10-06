@@ -1,12 +1,12 @@
 use chrono::Utc;
 use color_eyre::eyre::{Context, Result};
 use tracing_error::ErrorLayer;
-use tracing_subscriber::{prelude::*, EnvFilter};
+use tracing_subscriber::{EnvFilter, prelude::*};
 
 use crate::{
     config::AppConfig,
     index::AppIndex,
-    retry::{retry_options_with, RetryOptions, RetryPolicy},
+    retry::{RetryOptions, RetryPolicy, retry_options_with},
 };
 
 #[macro_use]

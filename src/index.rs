@@ -4,7 +4,7 @@ use std::{
 };
 
 use color_eyre::eyre::{Context, Result};
-use id3::{frame, TagLike};
+use id3::{TagLike, frame};
 
 use crate::{
     config::AppConfig,
@@ -182,7 +182,8 @@ impl AppIndex {
         for source in &AppConfig::get().sources {
             info!("updating source: {}", source.url);
 
-            // if the source is inactive and has been indexed before, don't bother
+            // if the source is inactive and has been indexed before, don't
+            // bother
             if source.inactive
                 && self
                     .playlists
@@ -218,17 +219,19 @@ impl AppIndex {
             for track in missing_tracks {
                 match source.kind.fetch_track(track)? {
                     TrackStatus::Available(_) => {
-                        // if the track is still available, it was manually removed
-                        // from the playlist
+                        // if the track is still available, it was manually
+                        // removed from the playlist
                         removed_tracks.push(track);
                     }
                     TrackStatus::Restricted => {
-                        // if the track is geo restricted, it was not manually removed
-                        // from the playlist, but it is no longer available
+                        // if the track is geo restricted, it was not manually
+                        // removed from the playlist, but it is no longer
+                        // available
                         restricted_tracks.push(track);
                     }
                     TrackStatus::NotFound => {
-                        // if the track is not found, it was deleted from SoundCloud
+                        // if the track is not found, it was deleted from
+                        // SoundCloud
                         deleted_tracks.push(track);
                     }
                 }
@@ -289,10 +292,11 @@ impl AppIndex {
             actions.extend(restricted_tracks.iter().map(|t| act!(t = Restricted)));
             actions.extend(unrestricted_tracks.iter().map(|t| act!(t = Unrestricted)));
 
-            // we want the add operations to come last so the downloads are done last.
-            // this is done so if there are errors in the code handling track state changes,
-            // we will know before we download tons of audio and crash which would throw away all
-            // of the progress we made
+            // we want the add operations to come last so the downloads are done
+            // last. this is done so if there are errors in the code handling
+            // track state changes, we will know before we download tons of
+            // audio and crash which would throw away all of the progress we
+            // made
             actions.extend(new_tracks.iter().map(|t| act!(t = Added)));
 
             info!("{} actions to handle", actions.len());
@@ -334,9 +338,10 @@ impl AppIndex {
         debug!("writing playlists");
 
         for playlist in self.playlists.values() {
-            // since the playlist definitions are written so an SFTP mount which is a bit failure prone,
-            // we will retry writing the playlist a few times before giving up. the default retry policy
-            // is 3 retries with an exponential backoff
+            // since the playlist definitions are written so an SFTP mount which
+            // is a bit failure prone, we will retry writing the playlist a few
+            // times before giving up. the default retry policy is 3 retries
+            // with an exponential backoff
             retry_with(|| write_playlist(playlist), "failed to write playlist")?;
         }
 

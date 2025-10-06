@@ -3,7 +3,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-use color_eyre::eyre::{eyre, Context, Result};
+use color_eyre::eyre::{Context, Result, eyre};
 
 use crate::model::{Playlist, SingleTrack, Track, TrackHandle};
 
@@ -87,13 +87,13 @@ where
 
     let output = cmd.output()?;
 
-    if !output.status.success() {
-        if let Err(err) = on_error(&output) {
-            warn!(
-                "yt-dlp reported errors, trying to parse manifest anyway: {}",
-                err
-            );
-        }
+    if !output.status.success()
+        && let Err(err) = on_error(&output)
+    {
+        warn!(
+            "yt-dlp reported errors, trying to parse manifest anyway: {}",
+            err
+        );
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -135,8 +135,9 @@ where
     let track = match serde_json::from_str(&stdout) {
         Ok(track) => track,
         Err(err) => {
-            // parsing the track usually fails if the track has been made private or deleted, so
-            // we should just skip it to prevent the app from retrying indefinitely
+            // parsing the track usually fails if the track has been made
+            // private or deleted, so we should just skip it to prevent the app
+            // from retrying indefinitely
             warn!(json = stdout, "failed to parse track manifest: {}", err);
             return Ok(TrackStatus::NotFound);
         }
@@ -147,8 +148,9 @@ where
 
 #[instrument]
 fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus> {
-    // currently there is no difference between platforms when it comes to actually
-    // downloading tracks but we will keep this for when that inevitably changes.
+    // currently there is no difference between platforms when it comes to
+    // actually downloading tracks but we will keep this for when that
+    // inevitably changes.
 
     trace!("ensuring track is downloaded");
 
@@ -169,7 +171,8 @@ fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus>
         "mp3",
         "--audio-quality",
         "0",
-        // if the URL contains a reference to a playlist, do NOT download the whole playlist
+        // if the URL contains a reference to a playlist, do NOT download the
+        // whole playlist
         "--no-playlist",
         "--add-metadata",
         "--write-thumbnail",
@@ -205,16 +208,21 @@ fn convert_thumbnail(handle: &TrackHandle) -> Result<()> {
     // convert the downloaded thumbnail from whatever file format it's in to JPG
     let dir = fs::read_dir(&handle.root_dir)?;
 
-    let thumbnail = dir.filter_map(Result::ok).find(|e| {
-        e.path().file_stem().map(|s| s == "cover").unwrap_or(false)
-    }).ok_or_else(|| eyre!("could not locate thumbnail after download. it should have been downloaded as well."))?;
+    let thumbnail = dir
+        .filter_map(Result::ok)
+        .find(|e| e.path().file_stem().map(|s| s == "cover").unwrap_or(false))
+        .ok_or_else(|| {
+            eyre!(
+                "could not locate thumbnail after download. it should have been downloaded as well."
+            )
+        })?;
 
     trace!("found thumbnail: {}", thumbnail.path().display());
 
     if thumbnail.path().extension().is_some_and(|ext| ext == "jpg") {
         trace!("thumbnail is already in JPG format, skipping conversion");
-        // we have to exit here otherwise the file will be deleted because
-        // the extension didn't change (and there was no new file created)
+        // we have to exit here otherwise the file will be deleted because the
+        // extension didn't change (and there was no new file created)
         return Ok(());
     }
 

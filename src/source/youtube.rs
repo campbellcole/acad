@@ -2,7 +2,7 @@ use color_eyre::eyre::Result;
 
 use crate::model::{Playlist, Track};
 
-use super::{source_bail, Fetcher, SourceDefinition, TrackDownloadStatus, TrackStatus};
+use super::{Fetcher, SourceDefinition, TrackDownloadStatus, TrackStatus, source_bail};
 
 pub struct YouTube;
 
@@ -38,9 +38,9 @@ impl Fetcher for YouTube {
                 return Ok(TrackStatus::Restricted);
             }
 
-            // giving youtube an invalid URL does not produce a 404, but this is here
-            // in case that behavior changes. currently all invalid URLs produce the
-            // "Video unavailable" error above.
+            // giving youtube an invalid URL does not produce a 404, but this is
+            // here in case that behavior changes. currently all invalid URLs
+            // produce the "Video unavailable" error above.
             if stderr.contains("HTTP Error 404") {
                 return Ok(TrackStatus::NotFound);
             }

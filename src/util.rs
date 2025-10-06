@@ -1,5 +1,6 @@
-/// Compute the changes between two `Vec`s. Returns a tuple of two vectors, the first
-/// containing the items that were added, the second containing the items that were removed.
+/// Compute the changes between two `Vec`s. Returns a tuple of two vectors, the
+/// first containing the items that were added, the second containing the items
+/// that were removed.
 ///
 /// # Example
 /// ```rs
