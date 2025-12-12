@@ -24,6 +24,7 @@
             clang
             yt-dlp
             cargo-outdated
+            deno
           ];
 
           buildInputs = [

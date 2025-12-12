@@ -1,6 +1,6 @@
 [package]
 name = "acad"
-version = "0.5.2"
+version = "0.5.3"
 authors = ["Campbell M. Cole <campbell@campbellcole.dev>"]
 description = "A SoundCloud archival daemon"
 homepage = "https://github.com/campbellcole/acad"

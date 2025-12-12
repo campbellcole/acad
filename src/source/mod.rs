@@ -79,7 +79,7 @@ where
 
     let mut cmd = Command::new("yt-dlp");
 
-    cmd.args(["-J", url]);
+    cmd.args(["-J", url, "-t", "sleep"]);
 
     cmd.stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -176,6 +176,9 @@ fn ensure_track_downloaded_generic(track: &Track) -> Result<TrackDownloadStatus>
         "--no-playlist",
         "--add-metadata",
         "--write-thumbnail",
+        // apply sleep preset to help with youtube ratelimiting
+        "-t",
+        "sleep",
     ]);
 
     cmd.arg("-o").arg(&handle.track_path);
