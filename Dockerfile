@@ -1,4 +1,4 @@
-FROM rustlang/rust:nightly-bullseye-slim as builder
+FROM rustlang/rust:nightly-bullseye-slim AS builder
 LABEL org.opencontainers.image.source="https://github.com/campbellcole/acad"
 
 WORKDIR /usr/src/acad

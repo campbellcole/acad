@@ -13,7 +13,7 @@ chrono = "0.4.35"
 chrono-tz = { version = "0.10", features = ["serde"] }
 iana-time-zone = "0.1"
 color-eyre = "0.6.2"
-cron = "0.15.0"
+cron = "0.17.0"
 ctrlc = { version = "3.4.1", features = ["termination"] }
 dotenvy = "0.15.7"
 id3 = "1.8.0"
