@@ -36,6 +36,8 @@ RUN wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /us
 # install Deno for yt-dlp YouTube downloads
 RUN curl -fsSL https://deno.land/install.sh | sh -s -- -y
 
+ENV PATH="$PATH:/root/.deno/bin"
+
 COPY --from=builder /usr/src/acad/target/release/acad /acad
 
 # and run it (environment vars must be set in docker-compose.yml)
